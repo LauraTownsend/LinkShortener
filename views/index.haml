@@ -1,9 +1,9 @@
 !!!
 %head 
-	%title shortener
+	%title Link Shortener
 	%style{:type=>"text/css"} h1{color:orange; font-family: Helvetica, Arial;}
 
 %h1 Simple Link Shortener
 %form{:method=>"post"}
-	%input{:type=>"text", :name=>"url"}
+	%input{:type=>"text", :name=>"url", :id=>"url"}
 	%input{:type=>"submit",:value=>"Shorten!"}
