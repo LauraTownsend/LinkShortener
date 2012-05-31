@@ -23,18 +23,11 @@ post '/' do
 	
 end
 
-get '/:small' do 
-	if urls[params[:small]] == nil 
- 		urls.each do |one,two|
-			puts "#{one}: #{two}"		
-		end
-		big_url = urls[params[:small]]
-		puts big_url
-		puts urls.length
-		#redirect to('/')
+get '/:small' do |id|
+	if urls.has_key?("#{id}".to_i)
+		big_url = urls["#{id}".to_i]
+		redirect to("http://#{big_url}")
 	else
-		big_url = urls[params[:small]]
-		puts big_url
-		redirect to(big_url)
+		redirect to('/')
 	end
 end
