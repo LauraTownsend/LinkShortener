@@ -31,3 +31,7 @@ get '/:small' do |id|
 		redirect to('/')
 	end
 end
+
+get '/error' do 
+	haml :error
+end
