@@ -13,7 +13,11 @@ post '/' do
 	@big_url = params["url"]
 	small_id = urls.length+1
 	if urls.has_key?(@big_url)
-		redirect to('/')
+		puts "#{@big_url}"
+		@small = urls["#{@big_url}"]
+		puts @small
+		haml :existsAlready
+	#page which shows big url and small one already stored
 	else
 		urls.store(small_id,@big_url)
 		urls.store(@big_url,small_id)
@@ -28,7 +32,7 @@ get '/:small' do |id|
 		big_url = urls["#{id}".to_i]
 		redirect to("http://#{big_url}")
 	else
-		redirect to('/')
+		redirect to('http://localhost:4567/error')
 	end
 end
 
