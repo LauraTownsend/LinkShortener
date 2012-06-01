@@ -32,10 +32,6 @@ get '/:small' do |id|
 		big_url = urls["#{id}".to_i]
 		redirect to("http://#{big_url}")
 	else
-		redirect to('http://localhost:4567/error')
+		haml :error
 	end
-end
-
-get '/error' do 
-	haml :error
 end
