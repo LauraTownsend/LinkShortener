@@ -48,9 +48,8 @@ end
 get '/:small' do |id|
 	###using pstore to find corresponding url
 	store.transaction do
-		puts store.roots
-		if store.root?("#{id}")
-			big_url = store["#{id}"]
+		if store.root?("#{id}".to_i)
+			big_url = store["#{id}".to_i]
 			redirect to("http://#{big_url}")
 		else
 			haml :error
