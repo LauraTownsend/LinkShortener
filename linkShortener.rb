@@ -1,43 +1,67 @@
 require 'sinatra'
 require 'haml'
-require 'mongo'
+require 'pstore'
 
 set :haml, :format => :html5
 base = "http://localhost:4567/"
-urls=Hash.new
-conn = Mongo::Connection.new #(host, port)
-db   = conn['links']
-coll = db['link']
-
+#urls=Hash.new
+# a new PStore file which stores key-value pairs in a file called urlstore
+store = PStore.new('urlstore')
+small_id = 0
+store.transaction do
+	store.roots.each {small_id+=1}
+end
 get '/' do
 	haml :index
 end
 
 post '/' do
 	@big_url = params["url"]
-	small_id = urls.length+1
-	if urls.has_key?(@big_url)
-		@small = urls["#{@big_url}"]
-		#@small = 
-		haml :existsAlready
-	#page which shows big url and small one already stored
-	else
-		urls.store(small_id,@big_url)
-		urls.store(@big_url,small_id)
-		#coll.insert({small_id => @big_url})
-		#coll.insert({@big_url => small_id})
-		@small_url = "#{base}#{small_id}"
-		haml :urlstored
+	small_id = small_id+1
+	###using pstore to store the urls
+	store.transaction do 
+		if store.root?(@big_url)
+			@small = store["#{@big_url}"]
+			haml :existsAlready
+		else
+			store[small_id]=@big_url
+			store[@big_url]=small_id
+			@small_url = "#{base}#{small_id}"
+			haml :urlstored
+		end
 	end
+	###using a hash to store the urls
+	#if urls.has_key?(@big_url)
+	#	@small = urls["#{@big_url}"]
+		#@small = 
+	#	haml :existsAlready
+	#page which shows big url and small one already stored
+	#else
+	#	urls.store(small_id,@big_url)
+	#	urls.store(@big_url,small_id)
+	#	@small_url = "#{base}#{small_id}"
+	#	haml :urlstored
+	#end
 	
 end
 
 get '/:small' do |id|
-	if urls.has_key?("#{id}".to_i) #if
-		big_url = urls["#{id}".to_i]
-		#big_url =
-		redirect to("http://#{big_url}")
-	else
-		haml :error
+	###using pstore to find corresponding url
+	store.transaction do
+		puts store.roots
+		if store.root?("#{id}")
+			big_url = store["#{id}"]
+			redirect to("http://#{big_url}")
+		else
+			haml :error
+		end
 	end
+
+	### using hash to find corresponding url
+	#if urls.has_key?("#{id}".to_i) #if
+	#	big_url = urls["#{id}".to_i]
+	#	redirect to("http://#{big_url}")
+	#else
+	#	haml :error
+	#end
 end
